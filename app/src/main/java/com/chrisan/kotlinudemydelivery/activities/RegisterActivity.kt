@@ -4,11 +4,18 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import com.chrisan.kotlinudemydelivery.R
+import com.chrisan.kotlinudemydelivery.models.ResponseHttp
+import com.chrisan.kotlinudemydelivery.models.User
+import com.chrisan.kotlinudemydelivery.providers.UsersProvider
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -20,6 +27,8 @@ class RegisterActivity : AppCompatActivity() {
     var editTextPassword : EditText? = null
     var editTextConfirmPassword : EditText? = null
     var buttonRegister : Button? = null
+
+    val userProvider = UsersProvider()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +58,31 @@ class RegisterActivity : AppCompatActivity() {
 
 
         if (isValidForm(firstName, lastName, email, phone, password, confirmPassword)) {
-            Toast.makeText(this, "회원 가입에 성공했습니다.", Toast.LENGTH_SHORT).show()
+
+            val user = User(
+                firstname = firstName,
+                lastname = lastName,
+                email = email,
+                phone = phone,
+                password = password)
+
+            userProvider.register(user)?.enqueue(object:Callback<ResponseHttp> {
+                override fun onResponse(
+                    call: Call<ResponseHttp>,
+                    response: Response<ResponseHttp>
+                ) {
+                    Log.d(TAG, "Response : ${response} ")
+                    Log.d(TAG, "Response : ${response.body()} ")
+                    Toast.makeText(this@RegisterActivity, response.message(), Toast.LENGTH_SHORT).show()
+                }
+
+                // 응답 실패 시,
+                override fun onFailure(call: Call<ResponseHttp>, t: Throwable) {
+                    Log.d(TAG, "응답에 실패했습니다. 메시지 -> ${t.message}")
+                    Toast.makeText(this@RegisterActivity, "응답에 실패했습니다. 메시지 -> ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+
+            })
         }
 
     }

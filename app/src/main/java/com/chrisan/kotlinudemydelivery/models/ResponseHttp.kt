@@ -3,6 +3,9 @@ package com.chrisan.kotlinudemydelivery.models
 import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 
+/**
+ * POST 는 응답 바디가 되는 부분
+ */
 class ResponseHttp (
     @SerializedName("message") val message : String,
     @SerializedName("success") val success : Boolean,
